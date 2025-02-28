@@ -9,5 +9,6 @@ abstract class SecurityModule {
 
     public void showModuleInfo() {
         System.out.println("ระบบรักษาความปลอดภัย: " + moduleName);
+
     }
 }

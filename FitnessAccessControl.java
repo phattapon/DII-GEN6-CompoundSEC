@@ -2,151 +2,134 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.List;
+import java.time.LocalTime;
+import java.time.LocalDate;
 
 public class FitnessAccessControl extends JFrame {
-    private JTextField cardIdField;
-    private JTextField accessLevelField;
-    private JTextField validDaysField;
+    private JTextField cardIdField, startDayField, endDayField, startTimeField, endTimeField;
     private JTextArea logArea;
-
-    private List<String> accessCards = new ArrayList<>();
-    private List<String> auditLogs = new ArrayList<>();
+    private JComboBox<String> cardTypeComboBox;  // เพิ่ม ComboBox สำหรับเลือกประเภทการ์ด
+    private CardManager cardManager = new CardManager();
 
     public FitnessAccessControl() {
         setTitle("Fitness Access Control System");
-        setSize(600, 500); // ขยายขนาดหน้าต่าง
+        setSize(600, 500);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new FlowLayout());
 
         cardIdField = new JTextField(10);
-        accessLevelField = new JTextField(10);
-        validDaysField = new JTextField(5);
+        startDayField = new JTextField(5);
+        endDayField = new JTextField(5);
+        startTimeField = new JTextField(5);
+        endTimeField = new JTextField(5);
+
+        // เพิ่ม ComboBox สำหรับเลือกประเภทการ์ด
+        cardTypeComboBox = new JComboBox<>(new String[]{"Silver", "Gold", "Platinum"});
 
         JButton addButton = new JButton("Add");
         JButton modifyButton = new JButton("Modify");
         JButton revokeButton = new JButton("Revoke");
         JButton checkAccessButton = new JButton("Check Access");
         JButton showCardsButton = new JButton("Show Cards");
-        JButton auditLogsButton = new JButton("Audit Logs");
 
         logArea = new JTextArea(10, 40);
         logArea.setEditable(false);
 
-        // เพิ่มคำแนะนำ (Label) และช่องกรอกข้อมูล
-        add(new JLabel("Card ID:"));
-        add(cardIdField);
-        add(new JLabel("Access Level:"));
-        add(accessLevelField);
-        add(new JLabel("Valid for (days):"));
-        add(validDaysField);
+        add(new JLabel("Card ID:")); add(cardIdField);
+        add(new JLabel("Start Day:")); add(startDayField);
+        add(new JLabel("End Day:")); add(endDayField);
+        add(new JLabel("Start Time:")); add(startTimeField);
+        add(new JLabel("End Time:")); add(endTimeField);
+        add(new JLabel("Card Type:")); add(cardTypeComboBox);  // เพิ่มการเลือกประเภทการ์ด
 
-        // เพิ่มปุ่มต่าง ๆ ที่ใช้งานในระบบ
-        add(addButton);
-        add(modifyButton);
-        add(revokeButton);
-        add(checkAccessButton);
-        add(showCardsButton);
-        add(auditLogsButton);
-
-        // เพิ่มพื้นที่สำหรับแสดงผล
+        add(addButton); add(modifyButton); add(revokeButton); add(checkAccessButton); add(showCardsButton);
         add(new JScrollPane(logArea));
 
-        // Action listener สำหรับปุ่มต่าง ๆ
         addButton.addActionListener(e -> addCard());
         modifyButton.addActionListener(e -> modifyCard());
         revokeButton.addActionListener(e -> revokeCard());
         checkAccessButton.addActionListener(e -> checkAccess());
         showCardsButton.addActionListener(e -> showCards());
-        auditLogsButton.addActionListener(e -> showAuditLogs());
     }
 
-    // ฟังก์ชันการเพิ่มบัตร
     private void addCard() {
         String cardId = cardIdField.getText();
-        String accessLevel = accessLevelField.getText();
-        String validDays = validDaysField.getText();
+        int startDay = Integer.parseInt(startDayField.getText());
+        int endDay = Integer.parseInt(endDayField.getText());
+        String startTime = startTimeField.getText();
+        String endTime = endTimeField.getText();
+        String cardType = (String) cardTypeComboBox.getSelectedItem();  // เลือกประเภทการ์ดจาก ComboBox
 
-        if (!cardId.isEmpty() && !accessLevel.isEmpty() && !validDays.isEmpty()) {
-            accessCards.add("Card ID: " + cardId + " | Level: " + accessLevel + " | Days: " + validDays);
-            auditLogs.add(getTimestamp() + " - Card " + cardId + " was created");
-            logArea.setText("Card added successfully!");
-        } else {
-            logArea.setText("Please fill in all fields.");
-        }
+        cardManager.addCard(new AccessCard(cardId, startDay, endDay, startTime, endTime, cardType));
+        logArea.setText("Card added successfully!");
     }
 
-    // ฟังก์ชันการแก้ไขบัตร
     private void modifyCard() {
         String cardId = cardIdField.getText();
-        if (cardId.isEmpty()) {
-            logArea.setText("Enter Card ID to modify.");
-            return;
-        }
+        AccessCard card = cardManager.getCard(cardId);
 
-        for (int i = 0; i < accessCards.size(); i++) {
-            if (accessCards.get(i).contains("Card ID: " + cardId)) {
-                String newAccessLevel = accessLevelField.getText();
-                String newValidDays = validDaysField.getText();
+        if (card != null) {
+            int startDay = Integer.parseInt(startDayField.getText());
+            int endDay = Integer.parseInt(endDayField.getText());
+            String startTime = startTimeField.getText();
+            String endTime = endTimeField.getText();
+            String cardType = (String) cardTypeComboBox.getSelectedItem();  // เลือกประเภทการ์ดจาก ComboBox
 
-                // อัปเดตข้อมูลของบัตร
-                accessCards.set(i, "Card ID: " + cardId + " | Level: " + newAccessLevel + " | Days: " + newValidDays);
-                auditLogs.add(getTimestamp() + " - Card " + cardId + " was modified");
-                logArea.setText("Card modified successfully!");
-                return;
-            }
+            card.setAccessPeriod(startDay, endDay, startTime, endTime);
+            card.setCardType(cardType);  // แก้ไขประเภทการ์ด
+            logArea.setText("Card modified successfully!");
+        } else {
+            JOptionPane.showMessageDialog(this, "Card not found.");
         }
-        logArea.setText("Card ID not found.");
     }
 
-    // ฟังก์ชันการเพิกถอนบัตร
     private void revokeCard() {
         String cardId = cardIdField.getText();
-        accessCards.removeIf(card -> card.contains("Card ID: " + cardId));
-        auditLogs.add(getTimestamp() + " - Card " + cardId + " was revoked");
-        logArea.setText("Card revoked successfully!");
+        AccessCard card = cardManager.getCard(cardId);
+
+        if (card != null) {
+            cardManager.removeCard(cardId);
+            logArea.setText("Card revoked successfully!");
+        } else {
+            JOptionPane.showMessageDialog(this, "Card not found.");
+        }
     }
 
-    // ฟังก์ชันการตรวจสอบการเข้าถึง
     private void checkAccess() {
         String cardId = cardIdField.getText();
-        for (String card : accessCards) {
-            if (card.contains("Card ID: " + cardId)) {
-                JOptionPane.showMessageDialog(this, "Access granted:\n" + card);
-                return;
+        AccessCard card = cardManager.getCard(cardId);
+
+        if (card != null) {
+            int currentDay = LocalDate.now().getDayOfMonth();
+            String currentTime = LocalTime.now().toString().substring(0, 5);
+
+            // ให้ผู้ใช้กรอกชั้นที่ต้องการเข้าถึง
+            String levelToAccess = JOptionPane.showInputDialog(this, "Enter the level to access (Silver, Gold, Platinum):");
+
+            if (card.isAccessAllowed(currentDay, currentTime)) {
+                if (card.canAccessLevel(levelToAccess)) {
+                    JOptionPane.showMessageDialog(this, "Access granted to level " + levelToAccess + " for card " + cardId);
+                } else {
+                    JOptionPane.showMessageDialog(this, "Access denied to level " + levelToAccess + " for card " + cardId);
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "Access denied due to invalid time or day.");
             }
+        } else {
+            JOptionPane.showMessageDialog(this, "Card not found.");
         }
-        JOptionPane.showMessageDialog(this, "Access denied. Card not found.");
     }
 
-    // ฟังก์ชันแสดงบัตรทั้งหมด
+
     private void showCards() {
-        StringBuilder result = new StringBuilder("All Access Cards:\n");
-        for (String card : accessCards) {
-            result.append(card).append("\n");
+        StringBuilder allCards = new StringBuilder();
+        for (AccessCard card : cardManager.getAllCards()) {
+            allCards.append(card.toString()).append("\n");
         }
-        logArea.setText(result.toString());
-    }
-
-    // ฟังก์ชันแสดง Log
-    private void showAuditLogs() {
-        StringBuilder result = new StringBuilder("Audit Logs:\n");
-        for (String log : auditLogs) {
-            result.append(log).append("\n");
-        }
-        logArea.setText(result.toString());
-    }
-
-    // ฟังก์ชันเพื่อให้ได้เวลาในรูปแบบ Timestamp
-    private String getTimestamp() {
-        return java.time.LocalDateTime.now().toString();
+        logArea.setText(allCards.toString());
     }
 
     public static void main(String[] args) {
-        javax.swing.SwingUtilities.invokeLater(() -> {
-            FitnessAccessControl gui = new FitnessAccessControl();
-            gui.setVisible(true);
-        });
+        SwingUtilities.invokeLater(() -> new FitnessAccessControl().setVisible(true));
     }
 }

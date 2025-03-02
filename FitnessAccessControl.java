@@ -100,25 +100,33 @@ public class FitnessAccessControl extends JFrame {
         AccessCard card = cardManager.getCard(cardId);
 
         if (card != null) {
-            int currentDay = LocalDate.now().getDayOfMonth();
-            String currentTime = LocalTime.now().toString().substring(0, 5);
+            try {
+                // ให้ผู้ใช้ป้อนวันที่และเวลาเอง
+                int currentDay = Integer.parseInt(JOptionPane.showInputDialog("Enter current day (1-31):"));
+                String currentTime = JOptionPane.showInputDialog("Enter current time (HH:mm):");
 
-            // ให้ผู้ใช้กรอกชั้นที่ต้องการเข้าถึง
-            String levelToAccess = JOptionPane.showInputDialog(this, "Enter the level to access (Silver, Gold, Platinum):");
+                // ให้ผู้ใช้เลือกระดับการเข้าถึงที่ต้องการตรวจสอบ
+                String levelToAccess = JOptionPane.showInputDialog("Enter the level to access (Silver, Gold, Platinum):");
 
-            if (card.isAccessAllowed(currentDay, currentTime)) {
-                if (card.canAccessLevel(levelToAccess)) {
-                    JOptionPane.showMessageDialog(this, "Access granted to level " + levelToAccess + " for card " + cardId);
+                // ตรวจสอบสิทธิ์
+                if (card.isAccessAllowed(currentDay, currentTime)) {
+                    if (card.canAccessLevel(levelToAccess)) {
+                        JOptionPane.showMessageDialog(this, "✅ Access granted to level " + levelToAccess + " for card " + cardId);
+                    } else {
+                        JOptionPane.showMessageDialog(this, "⛔ Access denied to level " + levelToAccess + " for card " + cardId);
+                    }
                 } else {
-                    JOptionPane.showMessageDialog(this, "Access denied to level " + levelToAccess + " for card " + cardId);
+                    JOptionPane.showMessageDialog(this, "⛔ Access denied due to invalid time or day.");
                 }
-            } else {
-                JOptionPane.showMessageDialog(this, "Access denied due to invalid time or day.");
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, "❌ Invalid input. Please enter a valid number for the day and correct time format (HH:mm).");
             }
         } else {
-            JOptionPane.showMessageDialog(this, "Card not found.");
+            JOptionPane.showMessageDialog(this, "❌ Card not found.");
         }
     }
+
+
 
 
     private void showCards() {

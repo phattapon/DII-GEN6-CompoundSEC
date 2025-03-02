@@ -30,14 +30,22 @@ public class AccessCard {
         this.cardType = cardType;
     }
 
-    // ฟังก์ชันการตรวจสอบการเข้าถึง
     public boolean isAccessAllowed(int currentDay, String currentTime) {
-        if (currentDay >= startDay && currentDay <= endDay) {
-            // เปรียบเทียบเวลาปัจจุบันกับเวลาเริ่มต้นและสิ้นสุด
-            return currentTime.compareTo(startTime) >= 0 && currentTime.compareTo(endTime) <= 0;
-        }
-        return false;
+        System.out.println("Checking Access - Card ID: " + cardId);
+        System.out.println("Allowed Days: " + startDay + " to " + endDay);
+        System.out.println("Allowed Time: " + startTime + " to " + endTime);
+        System.out.println("Current Day: " + currentDay);
+        System.out.println("Current Time: " + currentTime);
+
+        boolean dayCheck = currentDay >= startDay && currentDay <= endDay;
+        boolean timeCheck = currentTime.compareTo(startTime) >= 0 && currentTime.compareTo(endTime) <= 0;
+
+        System.out.println("Day Check: " + dayCheck);
+        System.out.println("Time Check: " + timeCheck);
+
+        return dayCheck && timeCheck;
     }
+
 
     // เพิ่มเมธอด setAccessPeriod เพื่อแก้ไขช่วงวันและเวลา
     public void setAccessPeriod(int startDay, int endDay, String startTime, String endTime) {

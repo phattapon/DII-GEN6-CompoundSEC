@@ -1,0 +1,7 @@
+2025-03-03 12:57:05 - Card added: 1001
+2025-03-03 12:57:06 - Show all cards
+2025-03-03 12:57:07 - ✅ Check-in: Card 1001 at 2025-03-03 12:57:07
+2025-03-03 12:57:09 - 🚪 Check-out: Card 1001 at 2025-03-03 12:57:09
+2025-03-03 12:57:17 - Card modified: 1001
+2025-03-03 12:57:18 - Show all cards
+2025-03-03 12:57:30 - Access granted: 1001 to level Gold
